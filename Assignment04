@@ -1,0 +1,300 @@
+/*
+ * @author: 	Fred Schuck
+ * @date:		Nov. 24, 2018
+ * 
+ * Description:
+ * 
+ * Pseudocode:
+ * 
+ */
+import java.util.Scanner;
+
+public class Assignment04 {
+	static boolean[][] exploredWorld;
+	static int posX = 0;
+	static int posY = 0;
+
+	public static void main(String[] args) {
+
+		int mainMenuChoice;
+
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Welcome to the Jungle World Creator!\n"
+				+ "\n\tIn this game, you will be inserting animals in certain \nplaces in "
+				+ "the world that you create! You will also be allowed to \nremove "
+				+ "animals from certain locations before you start exploring!\n"
+				+ "Once you start exploring, you will navigate around the world to\n"
+				+ "observe the animals that you have inserted. "
+				+ "The game will keep \ntrack of all the animals you have observed!");
+		int choice = 0;
+		System.out.println("\n\nEnter the dimensions of your jungle!");
+//		System.out.print("Enter length: ");
+//		int length = sc.nextInt();
+//		System.out.print("Enter width: ");
+//		int width = sc.nextInt();
+//		String[][] world = new String[length][width];
+		int length = 5;
+		int width = 5;
+		System.out.println("Enter length: " + length);
+		System.out.println("Enter width: " + width);
+		String[][] world = new String[length][width];
+		String[][] animalLocations = new String[length][width];
+		String[][] animalWorld = new String[length][width];
+		String[] observedAnimals = new String[length];
+		initializeExploredWorld();
+		
+		do {
+			printMainMenu();
+			mainMenuChoice = sc.nextInt();
+
+			// 1 Insert an animal into the world
+			if (mainMenuChoice == 1) {
+				insertAnimalToWorld(animalLocations);
+				continue;
+			}
+
+			// 2 Remove an animal from the world
+			else if (mainMenuChoice == 2) {
+				removeAnimalFromWorld(animalLocations);
+				continue;
+			}
+
+			// 3 Explore the world
+			else if (mainMenuChoice == 3) {
+				explore(world, animalLocations, observedAnimals);
+			}
+
+			// 4 Exit
+			else if (mainMenuChoice == 4) {
+				System.out.println("Goodbye!");
+				System.exit(0);
+			}
+
+			// 5 Invalid Option
+			else {
+				System.out.println("\n=={ Invalid choice. Try again. }==");
+			}
+			/*
+			 * TODO: Declare and initialize arrays and generate the world starting from 0,0
+			 * Note: Don't forget to initialize exploredWorld 
+			 * Note: Make sure to loop through the String array animalLocations and initialize 
+			 * all it's elements to "" otherwise it initializes everything to null causing a 
+			 * Null pointer exception
+			 */
+
+			/*
+			 * While choice is not exit: Print menu Take choice Process the user choice
+			 * Note: Be sure to include input validation for choice
+			 * 
+			 */
+		} while (mainMenuChoice != 4);
+	}
+	public static void initializeExploredWorld() {
+		for (int r = 0; r < exploredWorld.length; r++) {
+			for (int c = 0; c < exploredWorld[r].length; c++) {
+				exploredWorld[r][c] = false;
+			}
+		}
+	}
+	public static void printMainMenu() {
+		System.out.print("\n1. Insert an animal into the world\n" + "2. Remove an animal from the world\n"
+				+ "3. Explore the world\n" + "4. Exit\n" + "Enter your choice: ");
+	}
+	public static void printMoveMenu() {
+		System.out.println("\nW. Move Forward\n" + "A. Move Left\n" + "S. Move Backward\n" + "D. Move Right\n"
+				+ "I. Display Observed Animals\n" + "E. Exit\n" + "Enter your choice: ");
+	}
+	public static void printObservedAnimals(String[] observedAnimals) {
+		for (int i = 0; i < observedAnimals.length; i++) {
+			if (observedAnimals[i] != null)
+				System.out.print(observedAnimals[i] + " ");
+		}
+		System.out.println();
+	}
+	public static void fill(String[][] matrix) {
+		for (int row = 0; row < matrix.length; row++) {
+			for (int column = 0; column < matrix[row].length; column++) {
+				matrix[row][column] = "";
+			}
+		}
+	}
+	public static void insertAnimalToWorld(String[][] animalLocations) {
+		Scanner sc = new Scanner(System.in);
+		do {
+			System.out.print("Enter X coordinate for animal: ");
+			int x = sc.nextInt();
+			System.out.print("Enter Y coordinate for animal: ");
+			int y = sc.nextInt();
+			if (checkBounds(animalLocations, x, y)) {
+				if (animalLocations[x][y] == null || animalLocations[x][y] == "") {
+					System.out.print("Enter animal name: ");
+					String animalInput = sc.next();
+					animalLocations[x][y] = animalInput;
+					System.out.print("Want to enter another animal? (Y/N): ");
+					String enterAnimal = sc.next().toUpperCase();
+					if (enterAnimal.contains("Y"))
+						continue;
+					else
+						return;
+				} else if (animalLocations[x][y] != "") {
+					System.out.println("Animal exists in given location." + "\nEnter new coordinates.");
+				} else
+					System.out.print("Given location is out of bounds.");
+			} else {
+				System.out.print("Location is out of bounds." + "\nEnter new coordinates.\n");
+				continue;
+			}
+		} while (true);
+	}
+	public static void removeAnimalFromWorld(String[][] animalLocations) {
+		Scanner sc = new Scanner(System.in);
+		do {
+			System.out.print("Enter X coordinate for animal: ");
+			int x = sc.nextInt();
+			System.out.print("Enter Y coordinate for animal: ");
+			int y = sc.nextInt();
+			try {
+				if (animalLocations[x][y] == "" || animalLocations[x][y] == null ) {
+					System.out.println("No animal exists in given location.");
+					System.out.print("Want to check another location? (Y/N): ");
+					String reCheck = sc.next().toUpperCase();
+					if (reCheck.contains("Y"))
+						continue;
+					else { return; }
+				}
+				else 
+					System.out.println("A/an " + (animalLocations[x][y]) + " is hiding here." + "\nWant to remove it? (Y/N)");
+					String remove = sc.next().toUpperCase();
+					if (remove.contains("Y")) {
+						animalLocations[x][y] = "";
+						System.out.print("Want to remove another animal? (Y/N): ");
+						remove = sc.next().toUpperCase();
+						if (remove.contains("Y")) {
+							continue;
+						}
+						else { return; }
+					}
+					else { continue; }
+					
+			} catch (Exception e) {
+				System.out.println("Given location is out of bounds."+ "\nEnter new coordinates.");
+				continue;
+			}
+		} while (true);
+	}
+	public static boolean checkBounds(String[][] array, int x, int y) {
+		if (x >= 0 && x < array.length && y >= 0 && y < array[x].length) 
+			return true;
+		else { return false; }
+	}
+	public static boolean isExplored(int x, int y) {
+		return exploredWorld[x][y];
+	}
+	/*
+	 * TODO: Complete isEmptyBlock Returns false if the array has an animal at [x,y]
+	 * and true if [x,y] is empty.
+	 */
+	public static boolean isEmptyBlock(String[][] animalLocations, int x, int y) {
+		if (animalLocations[x][y] == null || animalLocations[x][y] == "")
+			return true;
+		else 
+			return false;
+	}
+
+	/*
+	 * TODO: Complete updateObservedAnimals adds animal into the observedAnimals
+	 * array into the first occurrence of an empty String “” and returns the
+	 * observedAnimals array.
+	 */
+	public static String[] updateObservedAnimals(String[] observedAnimals, String animal) {
+		return observedAnimals;
+	}
+
+	/*
+	 * Prints the 2D array world Note: Nothing to do here, it's done for you!
+	 */
+	public static void printWorld(String[][] world) {
+		for (int i = 0; i < world.length; i++) {
+			for (String s : world[i]) {
+				System.out.print(s + " ");
+			}
+			System.out.println();
+		}
+	}
+
+	/*
+	 * TODO: Complete explore Starts the exploration! This method prints out the
+	 * world and then the move menu and asks the user to choose from the move menu
+	 * until the user chooses to exit. In this method, make sure to declare the x
+	 * and y variables that keep track of the user’s position in the world. When the
+	 * user chooses to move forward for example, change the x and y values
+	 * accordingly (refer to activity 8.0) and make sure they are within the world’s
+	 * bounds, if they are, call the move method and print the world, otherwise
+	 * reset the position to 0,0 and tell the user that they went off bounds. If the
+	 * user chooses to print observed animals , call the print observed animals
+	 * method. If the user chooses to exit, exit the program.
+	 */
+	public static void explore(String[][] world, String[][] animalLocations, String[] observedAnimals) {
+		System.out.println("Welcome to the World Explorer!");
+		printWorld(world);
+		printMoveMenu();
+		Scanner sc = new Scanner(System.in);
+		String choice = sc.nextLine().toUpperCase();
+		if (choice.contains("W")) {
+//			searchX(world);
+		} else if (choice.contains("A")) {
+
+		} else if (choice.contains("S")) {
+
+		} else if (choice.contains("D")) {
+
+		} else if (choice.contains("I")) {
+			printObservedAnimals(observedAnimals);
+		} else if (choice.contains("E")) {
+			System.out.print("Exiting world...");
+			return;
+		} else {
+			System.out.print("\n=={ Invalid choice. Try again. }==");
+		}
+	}
+
+	/*
+	 * TODO: Complete move 
+	 * This method calls the makeWorld method to create a new
+	 * world with the new user position and sets the 2D boolean array at [x,y] to be
+	 * true, setting this area as explored. If [x,y] has an animal display the
+	 * animal name and add it to the observed animals list and print the observed
+	 * animals list, otherwise display you did not encounter anything :( . This
+	 * method returns the 2D array world in the end.
+	 * 
+	 */
+	public static String[][] move(String[][] world, int x, int y, String[] observedAnimals,
+			String[][] animalLocations) {
+			
+		return world;
+	}
+	/*
+	 * TODO: Complete makeWorld This methods basically sets up the visible world.
+	 * Assigning “*” to unexplored areas and “O” to explored areas. It also sets the
+	 * user’s current position: (posX,posY) to a string of your choosing, example
+	 * “x”. At the end of the method and after assigning new Strings using loops and
+	 * if statements, it returns the 2D String array world.
+	 */
+	public static String[][] makeWorld(String[][] world, int posX, int posY) {
+		for (int row = 0; row < world.length; row++) {
+			for (int column = 0; column < world[row].length; column++) {
+				if (isExplored(posX, posY) == true)
+					world[row][column] = "O";
+				else
+					world[row][column] = "*";
+			}
+		}
+		world[posX][posY] = "X";
+		exploredWorld[posX][posY] = true;
+		return world;
+	}
+	public static void searchX(String[][] world, String direction) {
+		
+		return; 
+	}
+}
